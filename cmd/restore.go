@@ -10,26 +10,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// configCmd represents the config command
-var configCmd = &cobra.Command{
-	Use:   "config",
-	Short: "Manage dbBackupUtility settings",
-	Long:  `View or modify dbBackupUtility configuration like connection etc.`,
+// restoreCmd represents the restore command
+var restoreCmd = &cobra.Command{
+	Use:   "restore",
+	Short: "Restore database from backup",
+	Long:  `Restores the database using a backup file provided by the user.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("config called")
+		fmt.Println("restore called")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(configCmd)
+	rootCmd.AddCommand(restoreCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// configCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// restoreCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// configCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// restoreCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
