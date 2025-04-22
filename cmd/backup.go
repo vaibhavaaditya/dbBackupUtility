@@ -13,8 +13,8 @@ import (
 )
 
 var (
-    dbType, host, user, password, dbName, output, savedConfig string
-    port                                         			  int
+    dbType, host, user, password, dbName, output, input, savedConfig string
+    port                                         			  		 int
 )
 
 func handleBackupResult(err error) {
@@ -47,25 +47,17 @@ var backupCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// Mode 3: Saved Config
 		if savedConfig != "" {
-			// Fetch config logic (mock for now)
-			config := map[string]string{
-				"dbType": "mysql",
-				"host":   "localhost",
-				"port":   "3306",
-				"user":   "root",
-				"dbName": "mydb",
-				"output": "backup_from_saved.sql",
+
+			configs := loadConfigFile()
+			config, ok := configs[savedConfig]
+
+			if !ok {
+				fmt.Println(" No saved config found with name:", savedConfig)
+				return
 			}
 		
-		
-			// Prompt for password only
-			survey.AskOne(&survey.Password{Message: "Enter database password:"}, &password, survey.WithValidator(survey.Required))
-		
-		
-			portInt, _ := strconv.Atoi(config["port"])
-		
-		
-			dispatchBackup(config["dbType"], config["host"], portInt, config["user"], password, config["dbName"], config["output"])
+			survey.AskOne(&survey.Password{Message: "Enter database password:"}, &password, survey.WithValidator(survey.Required))		
+			dispatchBackup(config.DBType, config.Host, config.Port, config.User, password, config.DBName, config.Output)
 			return
 		}
 
