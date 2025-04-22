@@ -6,9 +6,23 @@ package cmd
 
 import (
 	"fmt"
-
+	"github.com/vaibhavaaditya/dbBackupUtility/pkg/backup"
 	"github.com/spf13/cobra"
 )
+
+var (
+    dbType, host, user, password, dbName, output string
+    port                                         int
+)
+
+func handleBackupResult(err error) {
+    if err != nil {
+        fmt.Println("Backup failed:", err)
+    } else {
+        fmt.Println("Backup completed successfully.")
+    }
+}
+
 
 // backupCmd represents the backup command
 var backupCmd = &cobra.Command{
@@ -16,20 +30,33 @@ var backupCmd = &cobra.Command{
 	Short: "Backup the database",
 	Long:  `Creates a backup of the configured database and saves it to the specified location.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("backup called")
-	},
+        switch dbType {
+        case "mysql":
+            err := backup.BackupMySQL(host, port, user, password, dbName, output)
+            handleBackupResult(err)
+        case "postgres":
+            // err := backup.BackupPostgres(host, port, user, password, dbName, output)
+            // handleBackupResult(err)
+        default:
+            fmt.Printf("Unsupported database type: %s\n", dbType)
+        }
+    },
 }
 
 func init() {
 	rootCmd.AddCommand(backupCmd)
 
-	// Here you will define your flags and configuration settings.
+    backupCmd.Flags().StringVar(&dbType, "type", "", "Database type (mysql)")
+    backupCmd.Flags().StringVar(&host, "host", "localhost", "Database host")
+    backupCmd.Flags().IntVar(&port, "port", 3306, "Database port")
+    backupCmd.Flags().StringVar(&user, "user", "", "Database username")
+    backupCmd.Flags().StringVar(&password, "password", "", "Database password")
+    backupCmd.Flags().StringVar(&dbName, "database", "", "Database name")
+    backupCmd.Flags().StringVar(&output, "output", "backup.sql", "Output file path for backup")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// backupCmd.PersistentFlags().String("foo", "", "A help for foo")
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// backupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+    backupCmd.MarkFlagRequired("type")
+    backupCmd.MarkFlagRequired("user")
+    backupCmd.MarkFlagRequired("password")
+    backupCmd.MarkFlagRequired("database")
 }

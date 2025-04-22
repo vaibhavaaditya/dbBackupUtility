@@ -6,9 +6,19 @@ package cmd
 
 import (
 	"fmt"
-
+	"github.com/vaibhavaaditya/dbBackupUtility/pkg/restore"
 	"github.com/spf13/cobra"
 )
+
+var input string
+
+func handleRestoreResult(err error) {
+    if err != nil {
+        fmt.Println("Restore failed:", err)
+    } else {
+        fmt.Println("Restore completed successfully.")
+    }
+}
 
 // restoreCmd represents the restore command
 var restoreCmd = &cobra.Command{
@@ -16,20 +26,34 @@ var restoreCmd = &cobra.Command{
 	Short: "Restore database from backup",
 	Long:  `Restores the database using a backup file provided by the user.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("restore called")
+		switch dbType {
+        case "mysql":
+            err := restore.RestoreMYSQL(host, port, user, password, dbName, input)
+            handleRestoreResult(err)
+        case "postgres":
+            // err := restore.RestorePostgres(host, port, user, password, dbName, input)
+            // handleRestoreResult(err)
+        default:
+            fmt.Printf("Unsupported database type: %s\n", dbType)
+        }
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(restoreCmd)
+    rootCmd.AddCommand(restoreCmd)
 
-	// Here you will define your flags and configuration settings.
+    restoreCmd.Flags().StringVar(&dbType, "type", "", "Database type (mysql)")
+    restoreCmd.Flags().StringVar(&host, "host", "localhost", "Database host")
+    restoreCmd.Flags().IntVar(&port, "port", 3306, "Database port")
+    restoreCmd.Flags().StringVar(&user, "user", "", "Database username")
+    restoreCmd.Flags().StringVar(&password, "password", "", "Database password")
+    restoreCmd.Flags().StringVar(&dbName, "database", "", "Database name")
+    restoreCmd.Flags().StringVar(&input, "input", "", "Input backup file path")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// restoreCmd.PersistentFlags().String("foo", "", "A help for foo")
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// restoreCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+    restoreCmd.MarkFlagRequired("type")
+    restoreCmd.MarkFlagRequired("user")
+    restoreCmd.MarkFlagRequired("password")
+    restoreCmd.MarkFlagRequired("database")
+    restoreCmd.MarkFlagRequired("input")
 }
