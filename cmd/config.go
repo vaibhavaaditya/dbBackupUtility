@@ -151,3 +151,6 @@ func init() {
 	rootCmd.AddCommand(configCmd)
 	configCmd.Flags().StringVar(&deleteVariant, "delete", "", "Delete a saved config variant by name")
 }
+
+// output - filepath
+// modularise

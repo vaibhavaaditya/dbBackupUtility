@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strconv"
 	"github.com/vaibhavaaditya/dbBackupUtility/pkg/backup"
+	"github.com/vaibhavaaditya/dbBackupUtility/pkg/logger"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
 )
@@ -17,25 +18,42 @@ var (
     port                                         			  		 int
 )
 
-func handleBackupResult(err error) {
+func dispatchBackup(dbType, host string, port int, user, password, dbName, output string) {
+    switch dbType {
+    case "mysql":
+        err := backup.BackupMySQL(host, port, user, password, dbName, output)
+        handleBackupResult(err, dbType, host, port, user, dbName, output)
+    case "postgres":
+        err := backup.BackupPostgres(host, port, user, password, dbName, output)
+        handleBackupResult(err, dbType, host, port, user, dbName, output)
+    default:
+        fmt.Printf("Unsupported database type: %s\n", dbType)
+    }
+}
+
+func handleBackupResult(err error, dbType, host string, port int, user, dbName, output string) {
     if err != nil {
         fmt.Println("Backup failed:", err)
     } else {
         fmt.Println("Backup completed successfully.")
     }
-}
 
-func dispatchBackup(dbType, host string, port int, user, password, dbName, output string) {
-    switch dbType {
-    case "mysql":
-        err := backup.BackupMySQL(host, port, user, password, dbName, output)
-        handleBackupResult(err)
-    case "postgres":
-        // err := backup.BackupPostgres(host, port, user, password, dbName, output)
-        // handleBackupResult(err)
-    default:
-        fmt.Printf("Unsupported database type: %s\n", dbType)
-    }
+	status := "success"
+	errorMsg := ""
+	fmt.Printf("DBType: %v Host: %v   Port: %v   User: %v   Database: %v FilePath: %v Status: %v Error: %v  SavedConfig: %v", dbType,host,port,user,dbName,output,status,errorMsg,savedConfig)	
+
+	logger.LogOperation(logger.LogEntry{
+		Action:      "backup",
+		DBType:      dbType,
+		Host:        host,
+		Port:        port,
+		User:        user,
+		Database:    dbName,
+		FilePath:    output,
+		Status:      status,
+		Error:       errorMsg,
+		SavedConfig: savedConfig,
+	})
 }
 
 
@@ -56,7 +74,7 @@ var backupCmd = &cobra.Command{
 				return
 			}
 		
-			survey.AskOne(&survey.Password{Message: "Enter database password:"}, &password, survey.WithValidator(survey.Required))		
+			survey.AskOne(&survey.Password{Message: "Enter database password:"}, &password, survey.WithValidator(survey.Required))
 			dispatchBackup(config.DBType, config.Host, config.Port, config.User, password, config.DBName, config.Output)
 			return
 		}

@@ -8,26 +8,43 @@ import (
 	"fmt"
 	"strconv"
 	"github.com/vaibhavaaditya/dbBackupUtility/pkg/restore"
+	"github.com/vaibhavaaditya/dbBackupUtility/pkg/logger"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
 )
 
-func handleRestoreResult(err error) {
+func handleRestoreResult(err error, dbType, host string, port int, user, dbName, input string) {
     if err != nil {
         fmt.Println("Restore failed:", err)
     } else {
         fmt.Println("Restore completed successfully.")
     }
+
+	status := "success"
+	errorMsg := ""
+
+	logger.LogOperation(logger.LogEntry{
+		Action:      "restore",
+		DBType:      dbType,
+		Host:        host,
+		Port:        port,
+		User:        user,
+		Database:    dbName,
+		FilePath:    input,
+		Status:      status,
+		Error:       errorMsg,
+		SavedConfig: savedConfig,
+	})
 }
 
 func dispatchRestore(dbType, host string, port int, user, password, dbName, input string) {
     switch dbType {
     case "mysql":
         err := restore.RestoreMYSQL(host, port, user, password, dbName, input)
-        handleRestoreResult(err)
+        handleRestoreResult(err, dbType, host, port, user, dbName, input)
     case "postgres":
-        // err := restore.RestorePostgres(host, port, user, password, dbName, input)
-        // handleRestoreResult(err)
+        err := restore.RestorePostgres(host, port, user, password, dbName, input)
+        handleRestoreResult(err, dbType, host, port, user, dbName, input)
     default:
         fmt.Printf("Unsupported database type: %s\n", dbType)
     }
@@ -104,7 +121,7 @@ var restoreCmd = &cobra.Command{
 			},
 			{
 				Name:     "input",
-				Prompt:   &survey.Input{Message: "Output file path:", Default: "backup.sql"},
+				Prompt:   &survey.Input{Message: "Input file path:", Default: "backup.sql"},
 				Validate: survey.Required,
 			},
 		}
@@ -117,7 +134,7 @@ var restoreCmd = &cobra.Command{
 			User     string `survey:"user"`
 			Password string `survey:"password"`
 			DBName   string `survey:"dbName"`
-			Output   string `survey:"input"`
+			input   string `survey:"input"`
 		}{}
 		
 		
@@ -134,7 +151,7 @@ var restoreCmd = &cobra.Command{
 		}
 
 
-		dispatchRestore(answers.DBType, answers.Host, portInt, answers.User, answers.Password, answers.DBName, answers.Output)
+		dispatchRestore(answers.DBType, answers.Host, portInt, answers.User, answers.Password, answers.DBName, answers.input)
 	},
 }
 
