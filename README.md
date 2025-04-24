@@ -19,7 +19,7 @@ A command-line utility built with Go to easily backup and restore MySQL and Post
 
 1.  Clone the repository:
     ```bash
-    git clone <your-repository-url>
+    git clone https://github.com/vaibhavaaditya/dbBackupUtility.git
     cd dbBackupUtility
     ```
 2.  Build the executable:

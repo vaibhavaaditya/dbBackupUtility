@@ -1,0 +1,10 @@
+{
+  "variant1": {
+    "dbType": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "user": "root",
+    "dbName": "mysqldb1",
+    "output": "backup.sql"
+  }
+}
