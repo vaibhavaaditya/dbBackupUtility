@@ -1,10 +1,11 @@
 # dbBackupUtility
 
-A command-line utility built with Go to easily backup and restore MySQL and PostgreSQL databases. It supports direct command-line flags, interactive prompts, and saved configurations for streamlined workflows.
+A command-line utility built with Go to easily backup and restore databases. It supports direct command-line flags, interactive prompts, and saved configurations for streamlined workflows.
 
 ## Features
 
-*   **Backup:** Create database backups for MySQL and PostgreSQL.
+*   **Currently Supported:** MySQL and PostgreSQL.
+*   **Backup:** Create database backups.
 *   **Restore:** Restore databases from backup files for MySQL and PostgreSQL.
 *   **Configuration Management:** Save and manage connection/backup settings for different database environments.
 *   **Multiple Interaction Modes:**
